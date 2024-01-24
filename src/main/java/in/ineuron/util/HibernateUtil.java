@@ -13,7 +13,19 @@ public class HibernateUtil {
 	
 	private HibernateUtil() {}
 	static {
-		sessionFactory = new Configuration().configure().addAnnotatedClass(Student.class).buildSessionFactory();
+		Configuration configuration = new Configuration();
+		configuration.setProperty("hibernate.connection.driver_class", "com.mysql.cj.jdbc.Driver");
+		configuration.setProperty("hibernate.connection.url", "jdbc:mysql:///Linux");
+		configuration.setProperty("hibernate.connection.username", "root");
+		configuration.setProperty("hibernate.connection.password", "Admin@123");
+		configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQL8Dialect");
+		configuration.setProperty("hibernate.show_sql", "true");
+		configuration.setProperty("hibernate.format_sql", "true");
+		configuration.setProperty("hibernate.hbm2ddl.auto", "update");
+		configuration.addAnnotatedClass(Student.class);
+		SessionFactory sessionFactory = configuration.buildSessionFactory();
+		
+		Session session = sessionFactory.openSession();
 	}
 	
 	public static Session getSession() {

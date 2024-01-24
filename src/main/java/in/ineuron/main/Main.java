@@ -1,45 +1,49 @@
 package in.ineuron.main;
 
+import java.io.IOException;
+
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 
 import in.ineuron.model.Student;
+import in.ineuron.util.HibernateUtil;
 
 public class Main {
 
 	@SuppressWarnings("deprecation")
-	public static void main(String[] args) {
-		
-		// Inform JVM to activate HIBERNATE
+	public static void main(String[] args) throws IOException {
+		int id = 18;
 		Configuration configuration = new Configuration();
-		configuration.configure();
+		configuration.setProperty("hibernate.connection.driver_class", "com.mysql.cj.jdbc.Driver");
+		configuration.setProperty("hibernate.connection.url", "jdbc:mysql:///Linux");
+		configuration.setProperty("hibernate.connection.username", "root");
+		configuration.setProperty("hibernate.connection.password", "Admin@123");
+		configuration.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQL8Dialect");
+		configuration.setProperty("hibernate.show_sql", "true");
+		configuration.setProperty("hibernate.format_sql", "true");
+		configuration.setProperty("hibernate.hbm2ddl.auto", "update");
 		
-		// Creating a SessionFactory object to hold many other objects required for HIBERNATE
+		configuration.addAnnotatedClass(Student.class);
 		SessionFactory sessionFactory = configuration.buildSessionFactory();
 		
-		// Using SessionFactory object to get only one Session object to perform our persistence operation
 		Session session = sessionFactory.openSession();
 		
-		Transaction transaction = session.beginTransaction();
+		Student student = session.get(Student.class, id);
+		if(student != null) {
+			System.out.println("Before updation in the table :: ");
+			System.out.println(student);
+			System.out.println("Please enter any key to continue :: ");
+			System.in.read(); // go and make changes in the database
+			session.refresh(student);
+			System.out.println("After updation in the table :: ");
+			System.out.println(student);
+		} else {
+			System.out.println("Record is not available for the given id");
+		}
+		HibernateUtil.closeSession();
+		HibernateUtil.closeSessionFactory();
 		
-		// Create PERSISTENCE Object
-		Student student = new Student();
-		student.setSid(1);
-		student.setSname("Harsh");
-		student.setSaddress("Mumbai");
-		student.setSage(20);
-		
-		// Perform PERSISTENCE operation using Entity/Model/POJO object
-		session.save(student);
-		
-		
-		// Commit the operation based on the result
-		transaction.commit();
-		System.out.println("Object saved to the database...");
-		session.close();
-		sessionFactory.close();
 		
 	}
 
